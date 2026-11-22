@@ -1,0 +1,59 @@
+# Builds the game and publishes ddhm-<tag>-windows-x64.zip as a GitHub release when a tag like v1.0.0 is pushed.
+# The zip holds only the port: DDHM Launcher.exe, ddhm.exe, README.txt, the licences and an empty Game folder for the
+# player's own copy of the MS-DOS game. Never any file of the original game.
+name: release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -A x64
+
+      - name: Build
+        run: cmake --build build --config Release --target ddhm ddhm_launcher
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $name = "ddhm-${{ github.ref_name }}-windows-x64"
+          $dir = "pkg/$name"
+          New-Item -ItemType Directory -Force "$dir/Game" | Out-Null
+          Copy-Item build/Release/ddhm.exe "$dir/"
+          Copy-Item "build/Release/DDHM Launcher.exe" "$dir/"
+          Copy-Item docs/PLAYING.md "$dir/README.txt"
+          Copy-Item LICENSE "$dir/LICENSE.txt"
+          Copy-Item THIRD_PARTY_NOTICES.md "$dir/THIRD_PARTY_NOTICES.md"
+          New-Item -ItemType Directory -Force "$dir/LICENSES" | Out-Null
+          Copy-Item build/_deps/sdl3-src/LICENSE.txt "$dir/LICENSES/SDL3-LICENSE.txt"
+          Set-Content -Encoding utf8 "$dir/Game/PUT THE MS-DOS GAME FILES HERE.txt" "Extract your own copy of Dangerous Dave in the Haunted Mansion (DAVE.EXE, EGATILES.DD2, LEVEL01.DD2 ...) into this folder, then start DDHM Launcher."
+          # guard: only these files may ship
+          $allowed = @("ddhm.exe", "DDHM Launcher.exe", "README.txt", "LICENSE.txt", "THIRD_PARTY_NOTICES.md", "SDL3-LICENSE.txt", "PUT THE MS-DOS GAME FILES HERE.txt")
+          $extra = Get-ChildItem $dir -Recurse -File | Where-Object { $allowed -notcontains $_.Name }
+          if ($extra) { throw "unexpected files in the package: $($extra.Name -join ', ')" }
+          Compress-Archive -Path $dir -DestinationPath "$name.zip"
+          "ZIP=$name.zip" >> $env:GITHUB_ENV
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP }}
+          name: Dangerous Dave Recomp ${{ github.ref_name }}
+          body_path: docs/RELEASE_NOTES.md
+
+      - name: Upload artifact (manual runs)
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddhm-release-zip
+          path: ${{ env.ZIP }}

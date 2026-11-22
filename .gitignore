@@ -1,0 +1,16 @@
+# Build output
+build/
+out/
+export/
+
+# Original game data and binaries: copyrighted, never commit them
+*.DD2
+*.dd2
+*.EXE
+*.UNP.EXE
+*.exo
+*.SHL
+/original/
+/game/
+/work/
+*.bin

@@ -1,0 +1,27 @@
+name: build-windows
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest          # MSVC is preinstalled on GitHub's runner; nothing to install locally
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure (picks the newest Visual Studio on the runner)
+        run: cmake -S . -B build -A x64
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      # Tests need the player's own copy of the game (tables, graphics, sounds come from it), so they run locally:
+      # ctest with DDHM_GAME_DIR set, including test_no_game_content on ddhm.exe and DDHM Launcher.exe.
+
+      - name: Upload Windows binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddhm-windows-x64
+          path: build/Release/*.exe
+          if-no-files-found: error

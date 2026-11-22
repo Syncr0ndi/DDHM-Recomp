@@ -1,0 +1,26 @@
+# screen CRCs (palette indices of the visible 320x200 area) - regenerate with test_screens --update
+death@360 98d32114
+death@380 cde0a77b
+death@420 d98a28aa
+death@460 5124b4d0
+ending@500 cef883cd
+ending@640 c415959a
+frank@300 36c83bd2
+frank@400 b7a13fba
+frank@500 923b401a
+level1@120 9d202d6a
+level1@200 9d202d6a
+level1@300 9d202d6a
+master@300 e19b736a
+master@400 981ef902
+status@360 013a4bf5
+title@100 32311027
+title@160 a2addd68
+title@260 9d202d6a
+title@330 9d202d6a
+title@50 32311027
+walk1@300 1c7d35ac
+walk1@360 c2601bc4
+walk1@430 9b6d1782
+walk1@500 83536091
+walk1@640 c2601bc4

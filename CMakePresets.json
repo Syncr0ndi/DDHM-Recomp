@@ -1,0 +1,13 @@
+{
+  "version": 6,
+  "configurePresets": [
+    { "name": "win-vs2022", "displayName": "Windows 11 / Visual Studio 2022 (x64)",
+      "generator": "Visual Studio 17 2022", "architecture": "x64", "binaryDir": "${sourceDir}/build/vs2022",
+      "cacheVariables": { "DDHM_GAME_DIR": "" } },
+    { "name": "ninja", "displayName": "Ninja (any platform)", "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ninja", "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" } }
+  ],
+  "buildPresets": [
+    { "name": "win-release", "configurePreset": "win-vs2022", "configuration": "Release" }
+  ]
+}
